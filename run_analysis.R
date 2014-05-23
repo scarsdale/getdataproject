@@ -92,5 +92,22 @@ get.measurements <- function(pathfn) {
              
 }
 extract.mean.sd <- function(dat) {
+    # subset data frame to only the mean / std dev measurements
     dat[,which(isfeaturemeanorsd(get.colnames()))]
+}
+get.activities <- function(pathfn) {
+    # get the activity classifications for the dataset as a factor vector
+    activity.factor = make.activityfactor()
+    activities <- read.table(getrawdata(pathfn("y")), header=F)
+    activity.factor(activities[,1])
+}
+get.subjects <- function(pathfn) {
+    # get the subject identification for the dataset as a factor vector
+    subjects <- read.table(getrawdata(pathfn("subject")), header=F)
+    factor(subjects[,1])
+}
+make.intermediate.data <- function(pathfn) {
+    dat <- extract.mean.sd(get.measurements(pathfn))
+    dat$Activity <- get.activities(pathfn)
+    dat$Subject <- get.subjects(pathfn)
 }
