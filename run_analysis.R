@@ -82,32 +82,37 @@ xy.file <- function(dataset) {
         paste(dataset, paste(xy, "_", dataset, ".txt", sep=""), sep="/")
     }
 }
-get.measurements <- function(pathfn) {
+get.measurements <- function(pathfn, n=-1) {
     # read a full dataset (test or training)
     features <- get.colnames()
     read.fwf(getrawdata(pathfn("X")),
              widths=rep(nchar(" -1.0000000e+000"),length(features)),
              header=F,
-             col.names=features)
-             
+             col.names=features,
+             n=n)             
 }
 extract.mean.sd <- function(dat) {
     # subset data frame to only the mean / std dev measurements
     dat[,which(isfeaturemeanorsd(get.colnames()))]
 }
-get.activities <- function(pathfn) {
+get.activities <- function(pathfn, n=-1) {
     # get the activity classifications for the dataset as a factor vector
     activity.factor = make.activityfactor()
-    activities <- read.table(getrawdata(pathfn("y")), header=F)
+    activities <- read.table(getrawdata(pathfn("y")), header=F, nrows=n)
     activity.factor(activities[,1])
 }
-get.subjects <- function(pathfn) {
+get.subjects <- function(pathfn, n=-1) {
     # get the subject identification for the dataset as a factor vector
-    subjects <- read.table(getrawdata(pathfn("subject")), header=F)
+    subjects <- read.table(getrawdata(pathfn("subject")), header=F, nrows=n)
     factor(subjects[,1])
 }
-make.intermediate.data <- function(pathfn) {
-    dat <- extract.mean.sd(get.measurements(pathfn))
-    dat$Activity <- get.activities(pathfn)
-    dat$Subject <- get.subjects(pathfn)
+make.intermediate.data <- function(pathfn, n=-1) {
+    dat <- extract.mean.sd(get.measurements(pathfn, n=n))
+    dat$Activity <- get.activities(pathfn, n=n)
+    dat$Subject <- get.subjects(pathfn, n=n)
+    dat
+}
+make.merged.intermediate <- function(n=-1) {
+    rbind(make.intermediate.data(xy.file("train"), n=n),
+          make.intermediate.data(xy.file("test"), n=n))
 }
