@@ -3,8 +3,10 @@
 #
 # 1. Download and unpack the zipped data set (if necessary)
 # 2. Merge the training and test data into one data set
-# 3. Label the activities with descriptive activity names
-# 4. Create a second data set with the average of each variable for
+# 3. Extract only the measurements on the mean and standard deviation
+#    for each measurement
+# 4. Label the activities with descriptive activity names
+# 5. Create a second data set with the average of each variable for
 #    each activity and each subject
 
 getrawdata <- function(filename) {
