@@ -8,7 +8,6 @@
 # 4. Label the activities with descriptive activity names
 # 5. Create a second data set with the average of each variable for
 #    each activity and each subject
-
 getrawdata <- function(filename) {
     # extract the specified file from the zip archive,
     # downloading the zip archive first if necessary
@@ -33,7 +32,17 @@ read.labels <- function(filename) {
     read.table(getrawdata(filename), sep=" ", colClasses=c("integer",
                                                   "character"))
 }
-make.activityfactor <- function() {
+memoize.nullary <- function(fn) {
+    # memoize a function taking no arguments
+    rv <- NULL
+    function() {
+        if (is.null(rv)) {
+            rv <<- fn()
+        }
+        rv
+    }
+}
+make.activityfactor <- memoize.nullary(function() {
     # get the names of the activity classifications
     activity.labels <- read.labels("activity_labels.txt")
     function (x) {
@@ -41,12 +50,12 @@ make.activityfactor <- function() {
                levels=activity.labels[[1]],
                labels=activity.labels[[2]])
     }
-}
-get.colnames <- function() {
+})
+get.colnames <- memoize.nullary(function() {
     # get the labels for the 561-feature vectors in the dataset
     feature.labels <- read.labels("features.txt")
     feature.labels[[2]]
-}
+})
 tokenize.label <- function(label) {
     # the label names use `-' as a word delimiter;
     # use this to break vector of label names into a matrix of words
@@ -66,4 +75,22 @@ isfeaturesd <- function(label) {
 }
 isfeaturemeanorsd <- function(label) {
     isfeaturemean(label) | isfeaturesd(label)
+}
+xy.file <- function(dataset) {
+    # return a function to build a path for the X or Y files within a set
+    function (xy) {
+        paste(dataset, paste(xy, "_", dataset, ".txt", sep=""), sep="/")
+    }
+}
+get.measurements <- function(pathfn) {
+    # read a full dataset (test or training)
+    features <- get.colnames()
+    read.fwf(getrawdata(pathfn("X")),
+             widths=rep(nchar(" -1.0000000e+000"),length(features)),
+             header=F,
+             col.names=features)
+             
+}
+extract.mean.sd <- function(dat) {
+    dat[,which(isfeaturemeanorsd(get.colnames()))]
 }
