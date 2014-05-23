@@ -28,3 +28,23 @@ getrawdata <- function(filename) {
     }
     getunzipped(filename)
 }
+read.labels <- function(filename) {
+    # read a file mapping numbers to strings, such as features.txt
+    read.table(getrawdata(filename), sep=" ", colClasses=c("integer",
+                                                  "character"))
+}
+make.activityfactor <- function() {
+    # get the names of the activity classifications
+    activity.labels <- read.labels("activity_labels.txt")
+    function (x) {
+        factor(x,
+               levels=activity.labels[[1]],
+               labels=activity.labels[[2]])
+    }
+}
+get.colnames <- function() {
+    # get the labels for the 561-feature vectors in the dataset
+    feature.labels <- read.labels("features.txt")
+    feature.labels[[2]]
+}
+
