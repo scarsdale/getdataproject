@@ -10,6 +10,8 @@
 #    each activity and each subject
 
 getrawdata <- function(filename) {
+    # extract the specified file from the zip archive,
+    # downloading the zip archive first if necessary
     zipdirname <- "UCI HAR Dataset"
     getzipped <- function() {
         zipname <- paste(zipdirname, "zip", sep=".")
