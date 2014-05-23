@@ -7,9 +7,10 @@
 # 4. Create a second data set with the average of each variable for
 #    each activity and each subject
 
-getrawdata <- function() {
+getrawdata <- function(filename) {
+    zipdirname <- "UCI HAR Dataset"
     getzipped <- function() {
-        zipname <- "UCI HAR Dataset.zip"
+        zipname <- paste(zipdirname, "zip", sep=".")
         zipurl <- paste("https://d396qusza40orc.cloudfront.net",
                         "getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",
                         sep="/")
@@ -18,8 +19,8 @@ getrawdata <- function() {
         }
         zipname
     }
-    getunzipped <- function() {
-        unz(getzipped())
+    getunzipped <- function(filename) {
+        unz(getzipped(), paste(zipdirname, filename, sep="/"))
     }
-    getunzipped()
+    getunzipped(filename)
 }
