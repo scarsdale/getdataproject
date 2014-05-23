@@ -16,10 +16,10 @@ getrawdata <- function() {
         if (!file.exists(zipname)) {
             download.file(zipurl, zipname, method="curl", quiet=T)
         }
-        return zipname
+        zipname
     }
     getunzipped <- function() {
-        return unz(getzipped())
+        unz(getzipped())
     }
-    return getunzipped()
+    getunzipped()
 }
