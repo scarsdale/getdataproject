@@ -121,28 +121,37 @@ make.merged.intermediate <- function(n=-1) {
     rbind(make.intermediate.data(xy.file("train"), n=n),
           make.intermediate.data(xy.file("test"), n=n))
 }
-subject.activity.averages <- function(dat) {
+subject.activity.mean <- function(dat) {
+    # return a function to build a 3-column data frame giving the mean
+    # for the given feature for each subject, activity pair
+    #
+    # Subject Activity feature
+    # 1       WALKING  3.141
+    # ...
+    function(feature) {
+        m <- tapply(dat[,feature], list(dat$Subject, dat$Activity), mean)
+        d <- data.frame(Subject=rep(row.names(m), ncol(m)),
+                        Activity=rep(colnames(m), each=nrow(m)),
+                        z=as.vector(m))
+        colnames(d)[3] <- feature        
+        d
+    }
+}
+subject.activity.means <- function(dat) {
     # take an intermediate data set and reduce it to each variable's
     # overall mean for a given subject,activity pair
     measurecolnames <- colnames(dat)[isfeaturemean(colnames(dat))]
-    ret <- do.call(data.frame,
-                   lapply(measurecolnames,
-                          function (feature) {
-                              tapply(dat[,feature],
-                                     list(dat$Subject, dat$Activity))
-                          }))
-    colnames(ret) <- measurecolnames
-    ret <- cbind(ret, data.frame(dat$Activity, dat$Subject))
-    ret
+    mergecols <- c("Subject", "Activity")
+    Reduce(function(acc, x) { merge(acc, x, by=mergecols) },
+           lapply(measurecolnames, subject.activity.mean(dat)))
 }
 simplify.names <- function(labels) {
     # remove the 'Mag-mean()' suffix from measurement labels,
     # since we are reporting only the overall means of vector magnitudes
-    # also remove dat. prefix from Activity and Subject and
-    # deduplicate BodyBody to Body
+    # also deduplicate BodyBody to Body
     sapply(labels, function(s) {
-        if (s %in% c("dat.Activity", "dat.Subject"))
-            substr(s, 5, nchar(s))
+        if (s %in% c("Activity", "Subject"))
+            s
         else
             sub("BodyBody",
                 "Body",
@@ -159,11 +168,10 @@ expand.names <- function(labels) {
     sub("^f", "FrequencyOf", ret)
 }
 make.tidy <- function(dat) {
-    ret <- subject.activity.averages(dat)
+    ret <- subject.activity.means(dat)
     colnames(ret) <- expand.names(simplify.names(colnames(ret)))
-    # reorder columns so subject and activity come first
-    ret[,c(ncol(ret), ncol(ret) - 1, seq(1, ncol(ret) - 2))]
+    ret
 }
-write.csv(make.tidy(make.merged.intermediate()),
+write.csv(make.tidy(make.merged.intermediate(n=16)),
           "tidy.csv",
           row.names=F)
