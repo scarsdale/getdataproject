@@ -61,8 +61,12 @@ doesfeaturematch <- function(re) {
         sapply(label, function(s) { length(grep(re, s)) != 0 })
     }
 }
-isfeaturemean <- doesfeaturematch("-mean\\(\\)$")
+isfeaturemeantime <- doesfeaturematch("^t[a-zA-Z-]+-mean\\(\\)$")
+isfeaturemeanfreq <- doesfeaturematch("^f[a-zA-Z-]+-meanFreq\\(\\)$")
 isfeaturesd <- doesfeaturematch("-std\\(\\)$")
+isfeaturemean <- function(label) {
+    isfeaturemeantime(label) | isfeaturemeanfreq(label)
+}
 isfeaturemeanorsd <- function(label) {
     isfeaturemean(label) | isfeaturesd(label)
 }
@@ -143,10 +147,15 @@ simplify.names <- function(labels) {
     sapply(labels, function(s) {
         if (s %in% c("Activity", "Subject"))
             s
-        else
+        else if (substr(s, 1, 1) == "t")
             sub("BodyBody",
                 "Body",
                 substr(s, 1, nchar(s) - nchar("Mag-mean()")),
+                fixed=T)
+        else
+            sub("BodyBody",
+                "Body",
+                substr(s, 1, nchar(s) - nchar("Mag-meanFreq()")),
                 fixed=T)
     })
 }
