@@ -58,6 +58,8 @@ get.colnames <- memoize.nullary(function() {
 })
 doesfeaturematch <- function(re) {
     function(label) {
+        # given a vector of strings, return a logical vector indicating
+        # whether each string matched the pattern <re>
         sapply(label, function(s) { length(grep(re, s)) != 0 })
     }
 }
