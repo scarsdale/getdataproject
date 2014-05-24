@@ -172,6 +172,6 @@ make.tidy <- function(dat) {
     colnames(ret) <- expand.names(simplify.names(colnames(ret)))
     ret
 }
-write.csv(make.tidy(make.merged.intermediate(n=16)),
+write.csv(make.tidy(make.merged.intermediate()),
           "tidy.csv",
           row.names=F)
