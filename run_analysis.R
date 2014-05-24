@@ -56,15 +56,6 @@ get.colnames <- memoize.nullary(function() {
     feature.labels <- read.labels("features.txt")
     feature.labels[[2]]
 })
-tokenize.label <- function(label) {
-    # the label names use `-' as a word delimiter;
-    # use this to break vector of label names into a matrix of words
-    # "tBodyAcc-mean()-X" => c("tBodyAcc","mean()","X")
-    #
-    # emits warnings when some of the passed in labels consist of
-    # fewer words than the rest
-    do.call(rbind, strsplit(label, "-", fixed=T))
-}
 doesfeaturematch <- function(re) {
     function(label) {
         sapply(label, function(s) { length(grep(re, s)) != 0 })
